@@ -1,25 +1,18 @@
 ---
-title: "Different Riding Patterns Observed For Annual and Casual Toronto Bike Sharing Members"
+title: Different Riding Patterns Observed For Annual and Casual Toronto Bike Sharing
+  Members
 author: "Jiayi Zheng"
 date: "31/1/2022"
 output:
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
   html_document:
-    fig_caption: yes
-    force_captions: yes
-    highlight: pygments
-    number_sections: yes
-    theme: cerulean
-csl: mee.csl
-bibliography: references.bib
+    df_print: paged
 ---
 
-```{r, include=FALSE}
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
+
+Data and code available from: https://github.com/wholesomefcas/paper1_zheng
 
 # Abstract
 
@@ -55,7 +48,18 @@ url11 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-
   
 url12 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/543e93b0-4ba5-401d-baaf-61eb4249a5bf/download/bike-share-ridership-2021-12.csv"
   
-
+jan <- download.file(url1, "jan.csv")
+feb <- download.file(url2, "feb.csv")
+march <- download.file(url3, "march.csv")
+april <- download.file(url4, "april.csv")
+may <- download.file(url5, "may.csv")
+june <- download.file(url6, "june.csv")
+july <- download.file(url7, "july.csv")
+aug <- download.file(url8, "aug.csv")
+sep <- download.file(url9, "sep.csv")
+oct <- download.file(url10, "oct.csv")
+nov <- download.file(url11, "nov.csv")
+dec <- download.file(url12, "dec.csv")
 
 jan <- read.csv("jan.csv")
 feb <- read.csv("feb.csv")
@@ -79,7 +83,7 @@ library(knitr)
 kable(head(jan))
 ```
 
-The data is monthly and it is from Jan, 2021 to Dec. 2021. I downloaded 12 csv files, each contains data for each month. For each record, there are 10 variables observed:
+The data is monthly and it is from Jan, 2021 to Dec. 2021. I downloaded 12 csv files from Open Data Toronto (2021), each contains data for each month. For each record, there are 10 variables observed:
 
 - Trip ID: unique number assigned to each trip
 
@@ -107,7 +111,7 @@ Bike Share exposes APIs endpoints containing information about their services. T
 
 We first remove all rows with NAs. Then, we obtain boxplot based on the variable "Trip Duration" (left chart below). The plot indicate that we should remove the outliers based on the variable "Trip Duration." We replot boxplot again (right chart below).
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 all <- na.omit(all)
 
 library(tidyverse)
@@ -146,12 +150,15 @@ unique_stations_number <- matrix(unique_stations_number,nrow=1)
 
 kable(unique_stations_number, col.names = c("Start Station", "End Station"))
 ```
+
 Since the data is originally in csv format, we want to apply the standard date and time format used in R to the variables `Start.Time` and `End.Time` (date-time strings). We first use `strsplit()` to break apart the original date-time string, and then we separately date-format the `date` part and time-format the `time` part. Since the `time` formatting does not recognize `hour:minute` combination, we have to artificially add a `seconds` component to our time. We set `seconds` to zeros in each time. Finally, we use `chron()` function from the `chron` library to piece the parts into one.
 
 It would be great if we can perform such formatting on all months' data, but because the whole data set is too large for my laptop to do so, I shall only perform the date-time formatting on Feb data. I chose Feb data simply because it is the smallest data set among all, in terms of file size.
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, include=FALSE, warning=FALSE}
 library(chron)
+
+gc()
 
 ##########  let us do for start times first ##########
 date_time_parts_feb <- as.data.frame(strsplit(feb$Start.Time,' '))
@@ -208,6 +215,7 @@ To know whether there is any difference in riding duration patterns for casual m
 ggdensity(all_cleaned, x = "Trip..Duration", 
           add = "mean", rug = TRUE, color = "User.Type", fill = "User.Type", palette = c("#0073C2FF", "#FC4E07")) + labs(x = "trip duration (seconds)")
 ```
+
 We can see that the two ranges are about the same. Annual members differ from casual members mainly in that the travel durations of annual members concentrate around 500 seconds to a much higher extent than the travel durations of casual members. Annual members tend to prefer biking short durations. Casual members do not have clear preferences over biking duration ranging from 400 seconds to 1500 seconds. The average trip duration of casual members is about 250 seconds or about 4 minutes higher than the average trip duration of annual members.
 
 ## Peak time for sharebike riding in Feb, 2021
@@ -226,10 +234,12 @@ From this density plot, we see that the peak days for casual members in Feb are 
 
 # References
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE} 
-  write.bibtex(file="references.bib")
-```
+Keil, P. 2015. Simple template for scientific manuscripts in R markdown. https://www.r-bloggers.com/author/petr-keil/
 
+Open Data Toronto. 2021. Bike Share Toronto Ridership Data. https://open.toronto.ca/dataset/bike-share-toronto-ridership-data/.
 
+Jiayi Zheng. 2021. Different Riding Patterns Observed For Annual and Casual Toronto Bike Sharing Members. https://github.com/wholesomefcas/paper1_zheng.
+
+}
 
 
