@@ -1,0 +1,245 @@
+---
+title: Different Riding Patterns Observed For Annual and Casual Toronto Bike Sharing
+  Members
+author: "Jiayi Zheng"
+date: "31/1/2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Data and code available from: https://github.com/wholesomefcas/paper1_zheng
+
+# Abstract
+
+Using data collected from Jan, 2021 to Dec, 2021, we identified different patterns for bike sharing riders with different membership status. Using the data from Feb, 2021, we identified respective peak days for bike sharing riders with different membership status. 
+
+# Introduction
+
+Bike sharing, due to its cheaper price than other transportation means, are becoming popular these years. Whether trying to meet a relative living just blocks away, or trying to relax along a small river, biking can be both fun and convenient. In this light, the Toronto neighborhood has increased the number of sharing bicycles available. There are membership benefits for being an annual member of sharing bicycles. We want to investigate if there is any  significant difference in riding patterns between members and non-members.
+
+# Data
+
+```{r, include=FALSE}
+url1 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/d4a7b25c-edd0-4c1b-954a-79b6559477c4/download/2021-01.csv"
+
+url2 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/d4a5ef48-2006-4e2b-b9a9-d6791ea04004/download/bike-share-ridership-2021-02.csv"
+url3 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/9ab4727e-06e4-402b-a467-f411f03ffb66/download/bike-share-ridership-2021-03.csv"
+
+url4 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/1335c9d8-b14a-4c08-b897-cb0c861622ab/download/bike-share-ridership-2021-04.csv"
+  
+url5 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/e74d6b32-faa4-436c-9814-56045c768c66/download/bike-share-ridership-2021-05-.csv"
+
+url6 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/015d8b93-d476-4464-8465-c837a6ffc757/download/bike-share-ridership-2021-06.csv"
+  
+url7 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/dbfa21b0-1fd6-401c-8d66-a90aedf7e80f/download/bike-share-ridership-2021-07.csv"
+
+url8 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/8e4bc215-8a3e-4885-bf41-7241a37c76f0/download/bike-share-ridership-2021-08.csv"
+  
+url9 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/c1077de0-65e7-47ee-848b-02b42da42c35/download/bike-share-ridership-2021-09.csv"
+  
+url10 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/6240ed2a-23e4-40e3-9318-6756b6b12401/download/bike-share-ridership-2021-10.csv"
+  
+url11 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/3fc0bd1d-8e36-4b19-97d8-0ce3ccb64aad/download/bike-share-ridership-2021-11.csv"
+  
+url12 <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7e876c24-177c-4605-9cef-e50dd74c617f/resource/543e93b0-4ba5-401d-baaf-61eb4249a5bf/download/bike-share-ridership-2021-12.csv"
+  
+jan <- download.file(url1, "jan.csv")
+feb <- download.file(url2, "feb.csv")
+march <- download.file(url3, "march.csv")
+april <- download.file(url4, "april.csv")
+may <- download.file(url5, "may.csv")
+june <- download.file(url6, "june.csv")
+july <- download.file(url7, "july.csv")
+aug <- download.file(url8, "aug.csv")
+sep <- download.file(url9, "sep.csv")
+oct <- download.file(url10, "oct.csv")
+nov <- download.file(url11, "nov.csv")
+dec <- download.file(url12, "dec.csv")
+
+jan <- read.csv("jan.csv")
+feb <- read.csv("feb.csv")
+march <- read.csv("march.csv")
+april <- read.csv("april.csv")
+may <- read.csv("may.csv")
+june <- read.csv("june.csv")
+july <- read.csv("july.csv")
+aug <- read.csv("aug.csv")
+sep <- read.csv("sep.csv")
+oct <- read.csv("oct.csv")
+nov <- read.csv("nov.csv")
+dec <- read.csv("dec.csv")
+
+all <- rbind(jan,feb,march,april,may,
+             june,july,aug,sep,oct,nov,dec)
+```
+
+```{r, echo=FALSE}
+library(knitr)
+kable(head(jan))
+```
+
+The data is monthly and it is from Jan, 2021 to Dec. 2021. I downloaded 12 csv files from Open Data Toronto (2021), each contains data for each month. For each record, there are 10 variables observed:
+
+- Trip ID: unique number assigned to each trip
+
+- Trip Start time: trip starting time in the format (month-day-year, hour:minute)
+
+- Trip End Time: trip ending time in the format (month-day-year, hour:minute)
+
+- Trip Duration: trip duration time in seconds
+
+- Trip Start Station ID: station ID of the starting station
+
+- Trip Start Station Location: name of the starting station
+
+- Trip End Station ID: station ID of the end station
+
+- Trip End Station Location: name of the end station
+
+- User type: Annual Member vs. Casual Member
+
+## Data Cleaning
+
+The objective of this step is to consolidate the data from multiple sources into a single pandas DataFrame, containing standardized dates and station information, as well as with the outliers removed. See this article for an in-depth breakdown of common data cleaning steps covering a few more other cases.
+
+Bike Share exposes APIs endpoints containing information about their services. The station_information endpoint can be used as the source of truth to resolve inconsistencies between the station IDs and names, and also to enhance the data with additional geospatial information of each station.
+
+We first remove all rows with NAs. Then, we obtain boxplot based on the variable "Trip Duration" (left chart below). The plot indicate that we should remove the outliers based on the variable "Trip Duration." We replot boxplot again (right chart below).
+
+```{r, include=FALSE}
+all <- na.omit(all)
+
+library(tidyverse)
+```
+
+```{r, echo=FALSE}
+
+outliers <- boxplot(all$Trip..Duration, plot=FALSE)$out
+
+all_cleaned <- all[-which(all$Trip..Duration %in% outliers),]
+```
+
+```{r, echo=FALSE}
+par(mfrow=c(1,2))
+
+boxplot(all$Trip..Duration) 
+title(main = "With outliers")
+
+boxplot(all_cleaned$Trip..Duration) 
+title(main = "Without outliers")
+```
+
+Although it is possible that some typos happen to some of the names of the start or end stations, this dataset has nicely included start or end station IDs, which cannot have any typos in them. Hence, we can reply on start or end station IDs to distinguish between different start or end stations. To do this, we make start and end station IDs as factors. 
+
+```{r, include=FALSE}
+as.factor(all_cleaned$Start.Station.Id)
+as.factor(all_cleaned$End.Station.Id)
+```
+
+The following table lists the number of unique start stations and the number of unique end stations. There are slightly more end stations than start stations. This is probably common and does not suggest any big data set issue, since some stations only receives bicycles but do not rent them out.
+
+```{r, echo=FALSE}
+unique_stations_number <- c(length(unique(all_cleaned$Start.Station.Id)), length(unique(all_cleaned$End.Station.Id)))
+
+unique_stations_number <- matrix(unique_stations_number,nrow=1)
+
+kable(unique_stations_number, col.names = c("Start Station", "End Station"))
+```
+
+Since the data is originally in csv format, we want to apply the standard date and time format used in R to the variables `Start.Time` and `End.Time` (date-time strings). We first use `strsplit()` to break apart the original date-time string, and then we separately date-format the `date` part and time-format the `time` part. Since the `time` formatting does not recognize `hour:minute` combination, we have to artificially add a `seconds` component to our time. We set `seconds` to zeros in each time. Finally, we use `chron()` function from the `chron` library to piece the parts into one.
+
+It would be great if we can perform such formatting on all months' data, but because the whole data set is too large for my laptop to do so, I shall only perform the date-time formatting on Feb data. I chose Feb data simply because it is the smallest data set among all, in terms of file size.
+
+```{r, include=FALSE, warning=FALSE}
+library(chron)
+
+gc()
+
+##########  let us do for start times first ##########
+date_time_parts_feb <- as.data.frame(strsplit(feb$Start.Time,' '))
+
+date_time_parts_feb <- t(date_time_parts_feb)
+
+row.names(date_time_parts_feb) = NULL
+
+date_time_parts_feb[,2] <- paste(date_time_parts_feb[,2], ':00', sep = '')
+
+feb$start_times<- chron(dates=date_time_parts_feb[,1],times=date_time_parts_feb[,2], format=c('m/d/y','hh:mm:ss'))
+
+feb$start_times_hm<- chron(times=date_time_parts_feb[,2], format=c('hh:mm:ss'))
+
+feb$start_date <- chron(dates=date_time_parts_feb[,1], format=c('m/d/y'))
+
+##########  let us do for end times also ##########
+date_time_parts_feb_2 <- as.data.frame(strsplit(feb$End.Time,' '))
+
+date_time_parts_feb_2 <- t(date_time_parts_feb_2)
+
+row.names(date_time_parts_feb_2) = NULL
+
+date_time_parts_feb_2[,2] <- paste(date_time_parts_feb_2[,2], ':00', sep = '')
+
+feb$end_times<- chron(dates=date_time_parts_feb_2[,1],times=date_time_parts_feb_2[,2], format=c('m/d/y','hh:mm:ss'))
+
+feb$end_times_hm<- chron(times=date_time_parts_feb_2[,2], format=c('hh:mm:ss'))
+
+```
+
+## Trip duration for annual members vs. for casual members
+
+Now with our cleaned (on the basis of `Trip..Duration`) data, we can formally do some analysis. We first want to see the density distribution of Trip Duration.
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggpubr)
+ggdensity(all_cleaned, x = "Trip..Duration", 
+          fill = "#0073C2FF", color = "#0073C2FF",
+          add = "mean", rug = TRUE) + labs(x = "trip duration (seconds)")
+```
+
+Some summary statistics is also obtained here.
+
+```{r, echo=FALSE}
+summary(all_cleaned$Trip..Duration)
+```
+
+Along with the density plot, we see most biking trip lasts for about 500 seconds or less than 10 minutes. The maximum biking duration is 2322 seconds or about 38.7 minutes. The minimum biking duration is 0 seconds. This can happen when someone decided to abandon their biking plan right after their paying for the service. 
+
+To know whether there is any difference in riding duration patterns for casual members and annual members, we also plot a grouped density plot.
+
+```{r, echo=FALSE, warning=FALSE}
+ggdensity(all_cleaned, x = "Trip..Duration", 
+          add = "mean", rug = TRUE, color = "User.Type", fill = "User.Type", palette = c("#0073C2FF", "#FC4E07")) + labs(x = "trip duration (seconds)")
+```
+
+We can see that the two ranges are about the same. Annual members differ from casual members mainly in that the travel durations of annual members concentrate around 500 seconds to a much higher extent than the travel durations of casual members. Annual members tend to prefer biking short durations. Casual members do not have clear preferences over biking duration ranging from 400 seconds to 1500 seconds. The average trip duration of casual members is about 250 seconds or about 4 minutes higher than the average trip duration of annual members.
+
+## Peak time for sharebike riding in Feb, 2021
+
+Now with our date-time properly formatted Feb, 2021 ridership data, we can do some analysis on the time trend in Feb, 2021.
+
+We want to see the grouped density distribution of riding times based on membership profile. Note that since we are investigating on times, data cleaning based on `Trip..Duration` is no longer relevant. 
+
+```{r, echo=FALSE, warning=FALSE, error=FALSE}
+feb$start_times_2 <- as.POSIXct(feb$start_times)
+
+ggdensity(na.omit(feb), x = "start_times_2", 
+          add = "mean", rug = TRUE, color = "User.Type", fill = "User.Type", palette = c("#0073C2FF", "#FC4E07")) + labs(x = "riding times in Feb")+scale_x_datetime() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+From this density plot, we see that the peak days for casual members in Feb are in the late Feb. The peak days for annual members in Feb are both in the early Feb and late Feb. 
+
+# References
+
+Keil, P. 2015. Simple template for scientific manuscripts in R markdown. https://www.r-bloggers.com/author/petr-keil/
+
+Open Data Toronto. 2021. Bike Share Toronto Ridership Data. https://open.toronto.ca/dataset/bike-share-toronto-ridership-data/.
+
+Jiayi Zheng. 2021. Different Riding Patterns Observed For Annual and Casual Toronto Bike Sharing Members. https://github.com/wholesomefcas/paper1_zheng.
+
+}
+
+
